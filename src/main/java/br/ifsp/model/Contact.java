@@ -20,6 +20,7 @@ public class Contact {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     
+    // Anotações para restrição de valores aos atributos e mensagens de erro caso a regra de validação não seja obedecida
     @NotNull(message="Nome não pode ser nulo")
     private String nome;
     @Size(min=8, max=15, message="O telefone deve ter entre 8 e 15 caracteres")
@@ -27,6 +28,7 @@ public class Contact {
     @Email(message="E-mail inválido")
     private String email;
 
+    // Anotação para a relação de 1 contato com vários endereços subordinados
     @OneToMany(mappedBy="contact", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<Address> addresses = new ArrayList<>();
 

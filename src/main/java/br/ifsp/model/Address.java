@@ -19,10 +19,11 @@ public class Address {
     private String estado;
     private String cep;
 
-    // Chave estrangeira
+    // Chave estrangeira para o id de contatos
     @Column(name = "contact_id", insertable = false, updatable = false)
     private Long contactId;
 
+    // Junção do contato relacionado ao endereço
     @ManyToOne
     @JoinColumn(name="contact_id", nullable=false)
     private Contact contact;

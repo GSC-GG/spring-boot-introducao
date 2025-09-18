@@ -30,6 +30,9 @@ public class ContactController {
 
     @GetMapping
     public List<ContactResponse> findAll() {
+
+        // A resposta é manipulada para evitar serialização dos dados (contato e endereços se referencinaod infinitamente na resposta)
+        // Vide dto/AddressResponse.java e ContactResponse.java
         return contactRepository.findAll().stream()
                 .map(contact -> new ContactResponse(
                     contact.getId(),
@@ -75,6 +78,8 @@ public class ContactController {
 
     @GetMapping("/search")
     public List<ContactResponse> getContactsByName(@RequestParam String name) {
+
+        // Uso de filter() da Stream API para filtrar os contatos por nome
         return contactRepository.findAll()
                 .stream()
                 .filter(contact -> contact.getNome().contains(name))
@@ -97,6 +102,7 @@ public class ContactController {
                 .toList();
     }
 
+    // POST com validação dos dados (vide ValidationErrorHandler.java)
     @PostMapping
     public ContactResponse create(@RequestBody @Valid Contact contact) {
         Contact saved = contactRepository.save(contact);
@@ -120,6 +126,8 @@ public class ContactController {
 
     @GetMapping("/{id}/addresses")
     public List<AddressResponse> getAddressesByContactId(@PathVariable Long id) {
+
+        // O contato do id passado é pego e então é retornada a lista de endereços dele
         try {
             return contactRepository.findById(id)
                     .get()
@@ -173,7 +181,7 @@ public class ContactController {
         Contact existingContact = contactRepository.findById(id)
                 .orElseThrow(() -> new NullPointerException("Contato não encontrado: " + id));
 
-        // apenas os campos não nulos são atribuídos ao contato
+        // apenas os valores de campos não nulos são atribuídos ao contato
         if (updatedContact.getNome() != null) {
             existingContact.setNome(updatedContact.getNome());
         }
