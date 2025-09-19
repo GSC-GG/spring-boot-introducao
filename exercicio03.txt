@@ -1,0 +1,23 @@
+1. Qual a principal diferença entre REST e SOAP?
+
+    O SOAP é um protocolo de comunicação entre aplicações, com variadas especificações sobre como essa comunicação deve ocorrer, enquanto o REST é simplesmente uma arquitetura de estruturação do envio e requisição de dados sobre HTTP, norteando certos princípios que sugeririam uma forma mais robusta e padronizada para essas atividades.
+
+2. Em quais cenários SOAP ainda é utilizado?
+
+    Sistemas legados e ambientes que requerem uma segurança de dados particularmente forte. 
+
+3. Quais são as vantagens e desvantagens de usar REST ao invés de SOAP?
+
+    APIs REST são em geral significativamente mais leves, flexíveis e fáceis de implementar e fazer requisições, porém não possuem os padrões rígidos e integrados de segurança e tratamento de erros do SOAP, além de funcionar apenas com HTTP, enquanto o SOAP funciona sobre qualquer um dos protocolos das camadas de aplicação (como SMTP e TCP).
+
+4. O que é WS-Security e como ele se compara à segurança em APIs REST?
+
+    É uma especificação integrada ao SOAP de medidas de segurança para as mensagens baseado em tokens, que cria uma camada a mais de segurança para os processos de comunicação, enquanto o REST oferece suporte a HTTPS sem adições, sendo menos rígido, porém mais leve também.
+
+5. Explique o modelo de maturidade de Richardson.
+
+    Ele meio que mede o quão de acordo com a arquitetura REST uma aplicação está de acordo com os níveis no qual se encontra; quanto mais perto do nível 0, menos RESTFUL uma API é, e quanto mais perto do 3, mais ela está de acordo com os princípios REST.
+
+6. O que é GraphQL? Pesquisa e relacione com os conceitos vistos em aula.
+
+    É uma arquitetura de estruturação de APIs da mesma forma que o REST, desenvolvido pelo Facebook, mas também uma linguagem de consulta e um conjunto de ferramentas que busca uma maior flexibilidade nas solicitações e facilidade para consultas complexas; enquanto no REST é idealmente usado vários verbos HTTP com vários endpoints para diferentes operações, o GraphQL usa um único endpoint POST, o qual retorna dados de forma flexível de acordo com a solicitação do usuário e um esquema definido dos tipos de dados da aplicação e como eles se relacionam.
