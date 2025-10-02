@@ -1,9 +1,5 @@
 package br.ifsp.controller;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import static java.util.stream.Collectors.toList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
