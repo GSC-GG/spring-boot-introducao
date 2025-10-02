@@ -1,4 +1,4 @@
-package br.ifsp.controller;
+package br.ifsp.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ifsp.dto.AddressResponse;
 import br.ifsp.dto.ContactResponse;
+import br.ifsp.exception.ResourceNotFoundException;
 import br.ifsp.model.Contact;
 import br.ifsp.repository.ContactRepository;
 import jakarta.validation.Valid;
@@ -179,7 +180,7 @@ public class ContactController {
     public ContactResponse patchContact(@PathVariable Long id, @RequestBody Contact updatedContact) {
         // caso o contato não exista, um erro ocorre (veja NullPointerExceptionHandler.java)
         Contact existingContact = contactRepository.findById(id)
-                .orElseThrow(() -> new NullPointerException("Contato não encontrado: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Contato não encontrado: " + id));
 
         // apenas os valores de campos não nulos são atribuídos ao contato
         if (updatedContact.getNome() != null) {

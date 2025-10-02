@@ -11,7 +11,7 @@ class NullPointerExceptionHandler {
     // O erro retorna um HttpStatus.NOT_FOUND (erro 404)
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String notFoundElement(NullPointerException e) {
+    public String notFoundElement(NullPointerException e) {
         return e.getMessage();
     }
 }
