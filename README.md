@@ -1,13 +1,18 @@
+## Endereços
+
+**POST**  
+![Post address](prints/post_address.png)
+
+**GET ALL**  
+![Get addresses](prints/get_addresses.png)
+
+**GET BY ID**  
+![Get address by id](prints/get_address.png)
+
 ## Contatos
 
-**GET BY AN EXISTING NAME**  
-![Get contact with name "João"](prints/get_joao.png)
+**GET CONTACT WITH ITS ADDRESSES**  
+![Get contact with its addresses](prints/get_contact_addresses.png)
 
-**GET BY AN INEXISTING NAME**  
-![Get contact with name "Maria"](prints/get_maria.png)
-
-**PATCH AN EXISTING CONTACT**  
-![Patch existing contact with id 1](prints/patch_existente.png)
-
-**PATCH AN INEXISTING CONTACT**  
-![Patch inexisting contact with id 2](prints/patch_inexistente.png)
+**GET ALL ADDRESSES FROM A CONTACT**  
+![Get all addresses from a contact](prints/list_addresses_from_contact.png)
