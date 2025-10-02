@@ -2,8 +2,13 @@ package br.ifsp.controller;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import static java.util.stream.Collectors.toList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ifsp.config.MapperConfig;
 import br.ifsp.dto.AddressResponse;
 import br.ifsp.dto.ContactResponse;
 import br.ifsp.exception.ResourceNotFoundException;
@@ -30,28 +36,15 @@ public class ContactController {
     private ContactRepository contactRepository;
 
     @GetMapping
-    public List<ContactResponse> findAll() {
-
-        // A resposta é manipulada para evitar serialização dos dados (contato e endereços se referencinaod infinitamente na resposta)
-        // Vide dto/AddressResponse.java e ContactResponse.java
-        return contactRepository.findAll().stream()
-                .map(contact -> new ContactResponse(
-                    contact.getId(),
-                    contact.getNome(),
-                    contact.getTelefone(),
-                    contact.getEmail(),
-                    contact.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
-                ))
-                .toList();
+    public Page<ContactResponse> getAllContacts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nome") String sort) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Contact> contacts;
+        contacts = contactRepository.findAll(pageable);
+        return contacts.map(contact -> new MapperConfig().modelMapper().map(contact, ContactResponse.class));
     }
 
     @GetMapping("/{id}")
@@ -60,47 +53,27 @@ public class ContactController {
                 .orElseThrow(() -> new RuntimeException("Contato não encontrado: " + id));
 
         return new ContactResponse(
-                    contact.getId(),
-                    contact.getNome(),
-                    contact.getTelefone(),
-                    contact.getEmail(),
-                    contact.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
-                );
+                contact.getId(),
+                contact.getNome(),
+                contact.getTelefone(),
+                contact.getEmail(),
+                contact.getAddresses().stream()
+                        .map(address -> new AddressResponse(
+                        address.getId(),
+                        address.getRua(),
+                        address.getCidade(),
+                        address.getEstado(),
+                        address.getCep(),
+                        address.getContactId()
+                ))
+                        .toList()
+        );
     }
 
     @GetMapping("/search")
-    public List<ContactResponse> getContactsByName(@RequestParam String name) {
-
-        // Uso de filter() da Stream API para filtrar os contatos por nome
-        return contactRepository.findAll()
-                .stream()
-                .filter(contact -> contact.getNome().contains(name))
-                .map(contact -> new ContactResponse(
-                    contact.getId(),
-                    contact.getNome(),
-                    contact.getTelefone(),
-                    contact.getEmail(),
-                    contact.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
-                ))
-                .toList();
+    public Page<ContactResponse> searchContactsByName(@RequestParam String name, Pageable pageable) {
+        return contactRepository.findByNomeContainingIgnoreCase(name, pageable)
+                .map(contact -> new MapperConfig().modelMapper().map(contact, ContactResponse.class));
     }
 
     // POST com validação dos dados (vide ValidationErrorHandler.java)
@@ -108,44 +81,21 @@ public class ContactController {
     public ContactResponse create(@RequestBody @Valid Contact contact) {
         Contact saved = contactRepository.save(contact);
         return new ContactResponse(
-                    saved.getId(),
-                    saved.getNome(),
-                    saved.getTelefone(),
-                    saved.getEmail(),
-                    saved.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
-                );
-    }
-
-    @GetMapping("/{id}/addresses")
-    public List<AddressResponse> getAddressesByContactId(@PathVariable Long id) {
-
-        // O contato do id passado é pego e então é retornada a lista de endereços dele
-        try {
-            return contactRepository.findById(id)
-                    .get()
-                    .getAddresses()
-                    .stream()
-                    .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList();
-        } catch (NoSuchElementException e) {
-            throw new NullPointerException("Contato não encontrado: " + id);
-        }
+                saved.getId(),
+                saved.getNome(),
+                saved.getTelefone(),
+                saved.getEmail(),
+                saved.getAddresses().stream()
+                        .map(address -> new AddressResponse(
+                        address.getId(),
+                        address.getRua(),
+                        address.getCidade(),
+                        address.getEstado(),
+                        address.getCep(),
+                        address.getContactId()
+                ))
+                        .toList()
+        );
     }
 
     @PutMapping("/{id}")
@@ -159,20 +109,20 @@ public class ContactController {
 
         Contact saved = contactRepository.save(existingContact);
         return new ContactResponse(
-            saved.getId(),
-            saved.getNome(),
-            saved.getTelefone(),
-            saved.getEmail(),
-            saved.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
+                saved.getId(),
+                saved.getNome(),
+                saved.getTelefone(),
+                saved.getEmail(),
+                saved.getAddresses().stream()
+                        .map(address -> new AddressResponse(
+                        address.getId(),
+                        address.getRua(),
+                        address.getCidade(),
+                        address.getEstado(),
+                        address.getCep(),
+                        address.getContactId()
+                ))
+                        .toList()
         );
     }
 
@@ -195,20 +145,20 @@ public class ContactController {
 
         Contact saved = contactRepository.save(existingContact);
         return new ContactResponse(
-            saved.getId(),
-            saved.getNome(),
-            saved.getTelefone(),
-            saved.getEmail(),
-            saved.getAddresses().stream()
-                            .map(address -> new AddressResponse(
-                                address.getId(),
-                                address.getRua(),
-                                address.getCidade(),
-                                address.getEstado(),
-                                address.getCep(),
-                                address.getContactId()
-                            ))
-                            .toList()
+                saved.getId(),
+                saved.getNome(),
+                saved.getTelefone(),
+                saved.getEmail(),
+                saved.getAddresses().stream()
+                        .map(address -> new AddressResponse(
+                        address.getId(),
+                        address.getRua(),
+                        address.getCidade(),
+                        address.getEstado(),
+                        address.getCep(),
+                        address.getContactId()
+                ))
+                        .toList()
         );
     }
 

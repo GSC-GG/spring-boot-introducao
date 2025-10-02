@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ifsp.config.MapperConfig;
 import br.ifsp.dto.AddressResponse;
 import br.ifsp.exception.ResourceNotFoundException;
 import br.ifsp.model.Address;
@@ -53,6 +56,14 @@ public class AddressController {
                 address.getCep(),
                 address.getContactId()
         );
+    }
+    
+    @GetMapping("/contacts/{contactId}")
+    public Page<AddressResponse> getAddressesByContact(@PathVariable Long contactId, Pageable pageable) {
+        return addressRepository.findByContactId(contactId, pageable)
+                .map(address -> {
+            return new MapperConfig().modelMapper().map(address, AddressResponse.class);
+        });
     }
 
     @PostMapping
